@@ -27,14 +27,15 @@ library.theme = {
     cursor = true,
     cursorimg = "https://t0.rbxcdn.com/42f66da98c40252ee151326a82aab51f",
     @keyframes rainbowCycle {
-  0%   { background-color: rgb(255, 0, 0); }     /* Red */
-  16%  { background-color: rgb(255, 127, 0); }   /* Orange */
-  32%  { background-color: rgb(255, 255, 0); }   /* Yellow */
-  48%  { background-color: rgb(0, 255, 0); }     /* Green */
-  64%  { background-color: rgb(0, 0, 255); }     /* Blue */
-  80%  { background-color: rgb(75, 0, 130); }    /* Indigo */
-  100% { background-color: rgb(143, 0, 255); }   /* Violet */
+  0%   { background-color: rgb(128, 128, 128); }  /* Gray */
+  16%  { background-color: rgb(128, 128, 128); }  /* Gray */
+  32%  { background-color: rgb(128, 128, 128); }  /* Gray */
+  48%  { background-color: rgb(128, 128, 128); }  /* Gray */
+  64%  { background-color: rgb(128, 128, 128); }  /* Gray */
+  80%  { background-color: rgb(128, 128, 128); }  /* Gray */
+  100% { background-color: rgb(128, 128, 128); }  /* Gray */
 }
+
 <div class="rainbow-box"></div>
 
 <style>
@@ -45,10 +46,8 @@ library.theme = {
   }
 </style>
 
-    local TweenService = game:GetService("TweenService")
-local RunService = game:GetService("RunService")
+   local RunService = game:GetService("RunService")
 
--- Rainbow color sequence
 local rainbowColors = {
     Color3.fromRGB(255, 0, 0),     -- Red
     Color3.fromRGB(255, 127, 0),   -- Orange
@@ -59,21 +58,67 @@ local rainbowColors = {
     Color3.fromRGB(143, 0, 255),   -- Violet
 }
 
--- Function to loop colors for a UI object property
-local function animateColorLoop(instance, property)
-    local index = 1
-    task.spawn(function()
-        while true do
-            local nextIndex = index % #rainbowColors + 1
-            local tween = TweenService:Create(instance, TweenInfo.new(1, Enum.EasingStyle.Linear), {
-                [property] = rainbowColors[nextIndex]
-            })
-            tween:Play()
-            tween.Completed:Wait()
-            index = nextIndex
-        end
-    end)
+local cycleTime = 7 -- seconds for a full rainbow cycle
+
+local function lerpColor(c1, c2, t)
+    return Color3.new(
+        c1.R + (c2.R - c1.R) * t,
+        c1.G + (c2.G - c1.G) * t,
+        c1.B + (c2.B - c1.B) * t
+    )
 end
+
+local function getRainbowColor(time)
+    local segmentLength = cycleTime / #rainbowColors
+    local segmentIndex = math.floor(time / segmentLength) % #rainbowColors + 1
+    local nextIndex = (segmentIndex % #rainbowColors) + 1
+    local segmentTime = (time % segmentLength) / segmentLength
+    return lerpColor(rainbowColors[segmentIndex], rainbowColors[nextIndex], segmentTime)
+end
+
+local theme = {
+    tabstextcolor = Color3.new(),
+    bordercolor = Color3.new(),
+    accentcolor = Color3.new(),
+    accentcolor2 = Color3.new(),
+    outlinecolor = Color3.new(),
+    outlinecolor2 = Color3.new(),
+    sectorcolor = Color3.new(),
+    toptextcolor = Color3.new(),
+    topcolor = Color3.new(),
+    topcolor2 = Color3.new(),
+    buttoncolor = Color3.new(),
+    buttoncolor2 = Color3.new(),
+    itemscolor = Color3.new(),
+    itemscolor2 = Color3.new(),
+}
+
+local offsets = {
+    tabstextcolor = 0,
+    bordercolor = 1,
+    accentcolor = 2,
+    accentcolor2 = 3,
+    outlinecolor = 4,
+    outlinecolor2 = 5,
+    sectorcolor = 6,
+    toptextcolor = 0.5,
+    topcolor = 1.5,
+    topcolor2 = 2.5,
+    buttoncolor = 3.5,
+    buttoncolor2 = 4.5,
+    itemscolor = 5.5,
+    itemscolor2 = 6.5,
+}
+
+RunService.Heartbeat:Connect(function()
+    local time = tick()
+    for key, offset in pairs(offsets) do
+        local t = (time + offset) % cycleTime
+        theme[key] = getRainbowColor(t)
+    end
+end)
+
+-- Example: You can now use theme.tabstextcolor, theme.buttoncolor, etc. dynamically in your UI
 
 
 if library.theme.cursor and Drawing then
