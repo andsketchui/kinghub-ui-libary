@@ -26,23 +26,55 @@ library.theme = {
     tilesize = 90,
     cursor = true,
     cursorimg = "https://t0.rbxcdn.com/42f66da98c40252ee151326a82aab51f",
-    backgroundcolor = Color3.fromRGB(255,   0,   0),
-    tabstextcolor = Color3.fromRGB(255, 127,   0),
-    bordercolor = Color3.fromRGB(255, 255,   0),
-    accentcolor = Color3.fromRGB(  0, 255,   0),
-    accentcolor2 = Color3.fromRGB(  0,   0, 255),
-    outlinecolor = Color3.fromRGB( 75,   0, 130),
-    outlinecolor2 = Color3.fromRGB(143,   0, 255),
-    sectorcolor = Color3.fromRGB(255,   0,   0),
-    toptextcolor = Color3.fromRGB(255, 127,   0),
-    topheight = 48,
-    topcolor = Color3.fromRGB(255, 255,   0),
-    topcolor2 = Color3.fromRGB(  0, 255,   0),
-    buttoncolor = Color3.fromRGB(  0,   0, 255),
-    buttoncolor2 = Color3.fromRGB( 75,   0, 130),
-    itemscolor = Color3.fromRGB(143,   0, 255),
-    itemscolor2 = Color3.fromRGB(255,   0,   0)
+    @keyframes rainbowCycle {
+  0%   { background-color: rgb(255, 0, 0); }     /* Red */
+  16%  { background-color: rgb(255, 127, 0); }   /* Orange */
+  32%  { background-color: rgb(255, 255, 0); }   /* Yellow */
+  48%  { background-color: rgb(0, 255, 0); }     /* Green */
+  64%  { background-color: rgb(0, 0, 255); }     /* Blue */
+  80%  { background-color: rgb(75, 0, 130); }    /* Indigo */
+  100% { background-color: rgb(143, 0, 255); }   /* Violet */
 }
+<div class="rainbow-box"></div>
+
+<style>
+  .rainbow-box {
+    width: 200px;
+    height: 100px;
+    animation: rainbowCycle 5s linear infinite;
+  }
+</style>
+
+    local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+
+-- Rainbow color sequence
+local rainbowColors = {
+    Color3.fromRGB(255, 0, 0),     -- Red
+    Color3.fromRGB(255, 127, 0),   -- Orange
+    Color3.fromRGB(255, 255, 0),   -- Yellow
+    Color3.fromRGB(0, 255, 0),     -- Green
+    Color3.fromRGB(0, 0, 255),     -- Blue
+    Color3.fromRGB(75, 0, 130),    -- Indigo
+    Color3.fromRGB(143, 0, 255),   -- Violet
+}
+
+-- Function to loop colors for a UI object property
+local function animateColorLoop(instance, property)
+    local index = 1
+    task.spawn(function()
+        while true do
+            local nextIndex = index % #rainbowColors + 1
+            local tween = TweenService:Create(instance, TweenInfo.new(1, Enum.EasingStyle.Linear), {
+                [property] = rainbowColors[nextIndex]
+            })
+            tween:Play()
+            tween.Completed:Wait()
+            index = nextIndex
+        end
+    end)
+end
+
 
 if library.theme.cursor and Drawing then
     local success = pcall(function() 
